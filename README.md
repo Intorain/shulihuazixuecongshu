@@ -32,19 +32,23 @@
 
 ```text
 .
-├── books/               # 电子书源文件区
-│   ├── *.md             # 17 册规范正文源
-│   └── assets/          # 4,875 个正文图片资源
-├── raw/                 # 17 册原始扫描 PDF、导入哈希和资料说明
-├── catalog.json         # 书目、顺序、语言和稳定 EPUB UUID
-├── epub/                # EPUB 样式、Lua 过滤器及 Pandoc 本地化数据
-├── scripts/             # 源文件审计与 EPUB3 构建工具
-├── docs/                # 来源、维护与已知问题说明
-├── reports/             # 动态审计报告（JSON 不纳入版本控制）
-└── dist/                # 构建出的 EPUB（不纳入版本控制）
+├── catalog.json         # 根目录文件保持原位，file 路径相对仓库根
+├── Makefile
+└── .github/             # 所有目录统一归属；.git 为本地 Git 元数据
+    ├── AGENTS.md
+    ├── books/           # 电子书源文件区
+    │   ├── *.md         # 17 册规范正文源
+    │   └── assets/      # 4,875 个正文图片资源
+    ├── raw/             # 17 册原始扫描 PDF、导入哈希和资料说明
+    ├── epub/            # EPUB 样式、Lua 过滤器及 Pandoc 本地化数据
+    ├── scripts/         # 源文件审计与 EPUB3 构建工具
+    ├── docs/            # 来源、维护与已知问题说明
+    ├── reports/         # 动态审计报告（JSON 不纳入版本控制）
+    ├── .build/          # 构建中间文件（不纳入版本控制）
+    └── dist/            # 构建出的 EPUB（不纳入版本控制）
 ```
 
-Markdown 与 `books/assets/` 保持在同一源文件区，因此正文中的 `assets/...` 相对引用可直接解析；仓库根目录不放置单册电子书源文件。
+Markdown 与 `.github/books/assets/` 保持在同一源文件区，因此正文中的 `assets/...` 相对引用可直接解析；仓库根目录不放置单册电子书源文件。
 
 ## 构建
 
@@ -55,6 +59,8 @@ Markdown 与 `books/assets/` 保持在同一源文件区，因此正文中的 `a
 - GNU Make（可选）
 
 原始 PDF 深度审计额外需要 PyPDF2 3.x、qpdf、Poppler（`pdfinfo`、`pdfdetach`、`pdfsig`、`pdftotext`）和 ExifTool。
+
+以下命令均从仓库根目录执行；资源与生成物统一位于 `.github/`，不创建旧目录或兼容链接。
 
 完整审计并构建：
 
@@ -89,10 +95,10 @@ make verify
 构建单册：
 
 ```bash
-python3 scripts/build_epubs.py --book '代数（第一册）'
+python3 .github/scripts/build_epubs.py --book '代数（第一册）'
 ```
 
-输出位于 `dist/`，报告位于 `reports/`。构建器会检查 ZIP、XML、元数据、内部链接、图片替代文本、MathML 数量以及 EPUB3 nav/EPUB2 NCX 同步状态。同一源文件、同一 Pandoc 版本和同一 `SOURCE_DATE_EPOCH` 下，输出字节可复现。
+输出位于 `.github/dist/`，报告位于 `.github/reports/`。构建器会检查 ZIP、XML、元数据、内部链接、图片替代文本、MathML 数量以及 EPUB3 nav/EPUB2 NCX 同步状态。同一源文件、同一 Pandoc 版本和同一 `SOURCE_DATE_EPOCH` 下，输出字节可复现。
 
 ## Release 发布策略
 
@@ -111,7 +117,7 @@ make privacy
 make pre-push
 ```
 
-推送门禁覆盖 Git 候选文件、路径跨平台兼容性、PNG 完整性与元数据、生成 EPUB、常见秘密格式、本机路径以及 Git 历史身份信息。详见 [`docs/PRIVACY.md`](docs/PRIVACY.md)。
+推送门禁覆盖 Git 候选文件、路径跨平台兼容性、PNG 完整性与元数据、生成 EPUB、常见秘密格式、本机路径以及 Git 历史身份信息。详见 [`.github/docs/PRIVACY.md`](.github/docs/PRIVACY.md)。
 
 ## 当前源资产状态
 
@@ -123,7 +129,7 @@ make pre-push
 - 已验证 EPUB MathML：88,653 个
 - 空图片替代文本：0
 
-《立体几何》原扫描第 49、50、55、56 页仍为空白；Markdown 和 EPUB 已依据另一份扫描逐页核对恢复，`raw/` 原字节未改动。详见 [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md)。
+《立体几何》原扫描第 49、50、55、56 页仍为空白；Markdown 和 EPUB 已依据另一份扫描逐页核对恢复，`.github/raw/` 原字节未改动。详见 [`.github/docs/KNOWN_ISSUES.md`](.github/docs/KNOWN_ISSUES.md)。
 
 ## 权利说明
 

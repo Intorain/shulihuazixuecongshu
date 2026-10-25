@@ -22,9 +22,10 @@ try:
 except ImportError as exc:  # pragma: no cover - dependency failure is reported to the operator.
     raise SystemExit("audit_pdfs.py 需要 PyPDF2 3.x：python3 -m pip install PyPDF2") from exc
 
-ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "raw"
-REPORT = ROOT / "reports" / "pdf-audit.json"
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
+RAW = CONTENT_ROOT / "raw"
+REPORT = CONTENT_ROOT / "reports" / "pdf-audit.json"
 EXPECTED_PDFS = 17
 EXPECTED_AUTHOR = "数理化自学丛书编委会"
 GITHUB_MAX_FILE = 100 * 1024 * 1024
@@ -172,7 +173,7 @@ def walk_pdf_objects(
 def expected_checksums() -> dict[str, str]:
     path = RAW / "SHA256SUMS.txt"
     if not path.is_file():
-        raise ValueError("raw/SHA256SUMS.txt 不存在")
+        raise ValueError(".github/raw/SHA256SUMS.txt 不存在")
     rows: dict[str, str] = {}
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         match = re.fullmatch(r"([0-9a-f]{64})  (.+\.pdf)", line)
@@ -193,7 +194,7 @@ def audit_pdf(path: Path, expected_hash: str, identifiers: set[str]) -> dict[str
     features: Counter[str] = Counter()
     digest = sha256_file(path)
     if digest != expected_hash:
-        errors.append("SHA-256 与 raw/SHA256SUMS.txt 不一致")
+        errors.append("SHA-256 与 .github/raw/SHA256SUMS.txt 不一致")
     data = path.read_bytes()
     if not data.startswith(b"%PDF-") or b"%%EOF" not in data[-4096:]:
         errors.append("PDF 文件头或 EOF 标记无效")
@@ -342,10 +343,10 @@ def main() -> int:
     files = sorted(RAW.glob("*.pdf"))
     collection_errors: list[str] = []
     if len(files) != EXPECTED_PDFS:
-        collection_errors.append(f"raw/ 应有 {EXPECTED_PDFS} 份 PDF，实际 {len(files)}")
+        collection_errors.append(f".github/raw/ 应有 {EXPECTED_PDFS} 份 PDF，实际 {len(files)}")
     actual_names = {path.name for path in files}
     if actual_names != set(checksums):
-        collection_errors.append("raw/ PDF 集合与 SHA256SUMS.txt 不一致")
+        collection_errors.append(".github/raw/ PDF 集合与 SHA256SUMS.txt 不一致")
     identifiers = local_identifiers()
     rows = [audit_pdf(path, checksums.get(path.name, ""), identifiers) for path in files]
     failed = [row for row in rows if row["status"] != "PASS"]
@@ -367,7 +368,7 @@ def main() -> int:
         "schema_version": 1,
         "status": "PASS" if not collection_errors and not failed else "FAIL",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "raw/*.pdf plus raw/SHA256SUMS.txt",
+        "scope": ".github/raw/*.pdf plus .github/raw/SHA256SUMS.txt",
         "summary": summary,
         "collection_errors": collection_errors,
         "files": rows,
@@ -384,7 +385,7 @@ def main() -> int:
         print(f"ERROR: {error}", file=sys.stderr)
     for row in failed:
         for error in row["errors"]:
-            print(f"ERROR: raw/{row['file']}: {error}", file=sys.stderr)
+            print(f"ERROR: .github/raw/{row['file']}: {error}", file=sys.stderr)
     return 0 if payload["status"] == "PASS" else 1
 
 

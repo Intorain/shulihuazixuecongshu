@@ -5,7 +5,7 @@
 ## 基本原则
 
 1. 原始PDF保持原字节；规范修改只进入Markdown和派生EPUB。
-2. 审阅阶段只复制图片，不移动或覆盖 `books/assets/`。
+2. 审阅阶段只复制图片，不移动或覆盖 `.github/books/assets/`。
 3. 不能仅凭尺寸、文件字节数或单张图片决定删除。
 4. 必须检查图片前后完整段落、最近标题、题号连续性、书后答案和原PDF相邻页。
 5. 双栏页面不能直接采用OCR输出顺序；标题可能被插入题目、公式或下一节句子中间。
@@ -25,7 +25,7 @@ review-root/
 
 清单至少记录：
 
-- 仓库相对路径；
+- 相对内容目录 `.github/` 的路径，作为 manifest 的 `path` 字段；
 - SHA-256、字节数和尺寸；
 - 分册及Markdown引用位置；
 - 联系表文件名；
@@ -48,7 +48,7 @@ review-root/
 
 ## 阶段三：只读上下文审计
 
-建立JSON清单：
+建立JSON清单。以下 `path` 相对 `.github/` 内容目录，保持 `books/assets/...` 形式；脚本默认以该内容目录为基准，显式传入 `--repo` 时也应指向 `.github/`：
 
 ```json
 {
@@ -76,7 +76,7 @@ review-root/
 执行：
 
 ```bash
-python3 scripts/audit_image_text_cards.py \
+python3 .github/scripts/audit_image_text_cards.py \
   --manifest /path/to/manifest.json \
   --report /path/to/read-only-report.json \
   --context-lines 20

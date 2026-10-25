@@ -21,14 +21,15 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from xml.etree import ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
 CATALOG_PATH = ROOT / "catalog.json"
-CSS = ROOT / "epub" / "epub.css"
-TABLE_FILTER = ROOT / "epub" / "wrap_tables.lua"
-PANDOC_DATA = ROOT / "epub" / "pandoc-data"
-BUILD_DIR = ROOT / ".build"
-DEFAULT_OUTPUT = ROOT / "dist"
-REPORT = ROOT / "reports" / "build-report.json"
+CSS = CONTENT_ROOT / "epub" / "epub.css"
+TABLE_FILTER = CONTENT_ROOT / "epub" / "wrap_tables.lua"
+PANDOC_DATA = CONTENT_ROOT / "epub" / "pandoc-data"
+BUILD_DIR = CONTENT_ROOT / ".build"
+DEFAULT_OUTPUT = CONTENT_ROOT / "dist"
+REPORT = CONTENT_ROOT / "reports" / "build-report.json"
 
 AUTHOR = "数理化自学丛书编委会"
 LANGUAGE = "zh-CN"

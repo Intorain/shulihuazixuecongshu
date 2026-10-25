@@ -7,9 +7,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-BOOK_ROOT = ROOT / "books"
-REPORT = ROOT / "reports" / "chinese-variant-audit.json"
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
+BOOK_ROOT = CONTENT_ROOT / "books"
+REPORT = CONTENT_ROOT / "reports" / "chinese-variant-audit.json"
 BOOK_GLOB = "* - 数理化自学丛书编委会.md"
 # OpenCC 0.1.7 t2s/tw2sp/hk2s unanimous mappings found in the 17-book corpus,
 # plus four source-verified Japanese/obsolete forms: 鉄, 幷, 変, 搧.

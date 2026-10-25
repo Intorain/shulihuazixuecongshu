@@ -5,7 +5,7 @@
 1. 在仓库外建立带时间戳的备份。
 2. 只做可由扫描、上下文、量纲或书后答案支持的高置信修正。
 3. 新增或替换图片时提供真实描述性的替代文本。
-4. 不移动 `books/assets/`，除非同步更新所有 Markdown 引用。
+4. 不移动 `.github/books/assets/`，除非同步更新所有 Markdown 引用。
 5. 运行 `make audit`。
 6. 运行 `make all`，确认 17 册全部通过。
 7. 运行 `make verify`，独立复核已有产物。
@@ -16,11 +16,11 @@
 
 ## 原始 PDF
 
-`raw/*.pdf` 是校勘来源资料，不是规范正文。新增或替换时：
+`.github/raw/*.pdf` 是校勘来源资料，不是规范正文。新增或替换时：
 
 1. 先在仓库外备份，并确认书名与 `catalog.json` 一致；
 2. 保持导入原字节，不用办公软件另存；
-3. 更新 `raw/SHA256SUMS.txt`；
+3. 更新 `.github/raw/SHA256SUMS.txt`；
 4. 运行 `make pdf-audit`，确认 qpdf、附件、主动内容、元数据和隐私门禁17/17通过；
 5. 运行 `make repository privacy`，复核 GitHub 文件大小及公开候选范围。
 
@@ -44,8 +44,8 @@
 
 ## 生成物
 
-- `.build/`：Pandoc 中间文件
-- `dist/`：EPUB 输出
-- `reports/*.json`：动态审计结果
+- `.github/.build/`：Pandoc 中间文件
+- `.github/dist/`：EPUB 输出
+- `.github/reports/*.json`：动态审计结果
 
 以上内容均由脚本重建，不纳入版本控制。

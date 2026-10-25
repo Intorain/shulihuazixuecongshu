@@ -16,8 +16,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "repository-audit.json"
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
+REPORT = CONTENT_ROOT / "reports" / "repository-audit.json"
 CATALOG = ROOT / "catalog.json"
 BOOK_GLOB = "* - 数理化自学丛书编委会.md"
 GITHUB_MAX_FILE = 100 * 1024 * 1024
@@ -36,22 +37,23 @@ REQUIRED = {
     "Makefile",
     "README.md",
     "catalog.json",
-    "docs/KNOWN_ISSUES.md",
-    "docs/MAINTENANCE.md",
-    "docs/PRIVACY.md",
-    "docs/PROVENANCE.md",
-    "epub/epub.css",
-    "epub/wrap_tables.lua",
-    "epub/pandoc-data/translations/zh-CN.yaml",
-    "reports/.gitkeep",
-    "scripts/audit_pdfs.py",
-    "scripts/audit_privacy.py",
-    "scripts/audit_repository.py",
-    "scripts/audit_sources.py",
-    "scripts/build_epubs.py",
-    "raw/README.md",
-    "raw/SHA256SUMS.txt",
+    ".github/docs/KNOWN_ISSUES.md",
+    ".github/docs/MAINTENANCE.md",
+    ".github/docs/PRIVACY.md",
+    ".github/docs/PROVENANCE.md",
+    ".github/epub/epub.css",
+    ".github/epub/wrap_tables.lua",
+    ".github/epub/pandoc-data/translations/zh-CN.yaml",
+    ".github/reports/.gitkeep",
+    ".github/scripts/audit_pdfs.py",
+    ".github/scripts/audit_privacy.py",
+    ".github/scripts/audit_repository.py",
+    ".github/scripts/audit_sources.py",
+    ".github/scripts/build_epubs.py",
+    ".github/raw/README.md",
+    ".github/raw/SHA256SUMS.txt",
 }
+REQUIRED.add(".github/AGENTS.md")
 LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 
@@ -119,7 +121,7 @@ def check_pdf(path: Path, errors: list[str]) -> None:
 
 def check_markdown_links(errors: list[str]) -> int:
     checked = 0
-    documents = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))]
+    documents = [ROOT / "README.md", *sorted((CONTENT_ROOT / "docs").glob("*.md"))]
     for document in documents:
         text = document.read_text(encoding="utf-8")
         for match in LINK_RE.finditer(text):
@@ -153,6 +155,10 @@ def main() -> int:
     if missing_required:
         record(errors, f"缺少必需仓库文件：{missing_required}")
 
+    extra_roots = sorted(path.name for path in ROOT.iterdir() if path.is_dir() and path.name not in {".git", ".github"})
+    if extra_roots:
+        record(errors, f"根目录存在未收敛目录：{extra_roots}")
+
     root_books = list(ROOT.glob(BOOK_GLOB))
     if root_books:
         record(errors, f"根目录存在 {len(root_books)} 个单册 Markdown")
@@ -160,18 +166,18 @@ def main() -> int:
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     books = catalog.get("books", [])
     listed_books = [item.get("file", "") for item in books]
-    actual_books = sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "books").glob(BOOK_GLOB))
+    actual_books = sorted(path.relative_to(ROOT).as_posix() for path in (CONTENT_ROOT / "books").glob(BOOK_GLOB))
     if len(books) != 17 or set(listed_books) != set(actual_books):
-        record(errors, "catalog.json 与 books/ 中的 17 册 Markdown 不一致")
+        record(errors, "catalog.json 与 .github/books/ 中的 17 册 Markdown 不一致")
     identifiers = [item.get("identifier", "") for item in books]
     if len(set(identifiers)) != len(identifiers):
         record(errors, "catalog.json 存在重复 EPUB identifier")
-    raw_pdfs = sorted((ROOT / "raw").glob("*.pdf"))
+    raw_pdfs = sorted((CONTENT_ROOT / "raw").glob("*.pdf"))
     expected_raw_names = {
         f"{item.get('title', '')} - 数理化自学丛书编委会.pdf" for item in books
     }
     if len(raw_pdfs) != 17 or {path.name for path in raw_pdfs} != expected_raw_names:
-        record(errors, "raw/ 中的17册 PDF 与 catalog.json 书目不一致")
+        record(errors, ".github/raw/ 中的17册 PDF 与 catalog.json 书目不一致")
 
     collisions: dict[str, list[str]] = defaultdict(list)
     non_nfc: list[str] = []
@@ -256,21 +262,21 @@ def main() -> int:
                 record(errors, f"Python 语法错误：{relative}:{exc.lineno}")
 
     allowed_executable = {
-        "scripts/audit_pdfs.py",
-        "scripts/audit_privacy.py",
-        "scripts/audit_repository.py",
-        "scripts/audit_sources.py",
-        "scripts/build_epubs.py",
+        ".github/scripts/audit_pdfs.py",
+        ".github/scripts/audit_privacy.py",
+        ".github/scripts/audit_repository.py",
+        ".github/scripts/audit_sources.py",
+        ".github/scripts/build_epubs.py",
     }
     unexpected_executable = sorted(set(executable_files) - allowed_executable)
     if unexpected_executable:
         record(errors, f"存在意外可执行文件：{unexpected_executable}")
 
     ignored_checks = {
-        ".build": ROOT / ".build",
-        "dist": ROOT / "dist",
-        "reports_json": ROOT / "reports" / "privacy-audit.json",
-        "pycache": ROOT / "scripts" / "__pycache__",
+        ".build": CONTENT_ROOT / ".build",
+        "dist": CONTENT_ROOT / "dist",
+        "reports_json": CONTENT_ROOT / "reports" / "privacy-audit.json",
+        "pycache": CONTENT_ROOT / "scripts" / "__pycache__",
     }
     for label, path in ignored_checks.items():
         proc = subprocess.run(

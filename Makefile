@@ -5,25 +5,25 @@ PYTHON ?= python3
 all: audit epub
 
 audit:
-	$(PYTHON) scripts/audit_sources.py
-	$(PYTHON) scripts/audit_chinese_variants.py
+	$(PYTHON) .github/scripts/audit_sources.py
+	$(PYTHON) .github/scripts/audit_chinese_variants.py
 
 pdf-audit:
-	$(PYTHON) scripts/audit_pdfs.py
+	$(PYTHON) .github/scripts/audit_pdfs.py
 
 repository:
-	$(PYTHON) scripts/audit_repository.py
+	$(PYTHON) .github/scripts/audit_repository.py
 
 privacy:
-	$(PYTHON) scripts/audit_privacy.py
+	$(PYTHON) .github/scripts/audit_privacy.py
 
 epub:
-	$(PYTHON) scripts/build_epubs.py
+	$(PYTHON) .github/scripts/build_epubs.py
 
 verify:
-	$(PYTHON) scripts/build_epubs.py --verify-only
+	$(PYTHON) .github/scripts/build_epubs.py --verify-only
 
 pre-push: audit pdf-audit repository privacy verify
 
 clean:
-	rm -rf .build dist reports/*.json
+	rm -rf .github/.build .github/dist .github/reports/*.json

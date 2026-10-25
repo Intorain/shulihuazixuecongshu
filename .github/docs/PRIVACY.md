@@ -12,8 +12,8 @@
 - `.env`、私钥、凭据库等敏感文件名
 - 绝对路径符号链接
 - PNG 文本、EXIF、时间及其他隐私元数据块
-- `raw/` 中 PDF 的哈希、XMP/Info 元数据、附件、批注、表单、JavaScript与其他主动内容
-- `dist/` 中 EPUB 的全部文本型 ZIP 条目
+- `.github/raw/` 中 PDF 的哈希、XMP/Info 元数据、附件、批注、表单、JavaScript与其他主动内容
+- `.github/dist/` 中 EPUB 的全部文本型 ZIP 条目
 - 已有 Git 提交中的非 GitHub noreply 邮箱和历史补丁
 
 运行：
@@ -29,7 +29,7 @@ make privacy
 make pre-push
 ```
 
-机器可读报告写入 `reports/privacy-audit.json`，该报告被 `.gitignore` 排除。
+机器可读报告写入 `.github/reports/privacy-audit.json`，该报告被 `.gitignore` 排除。
 
 ## 本次结果
 

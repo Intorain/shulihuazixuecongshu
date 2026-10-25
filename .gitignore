@@ -1,7 +1,7 @@
 # 构建产物
-/.build/
-/dist/
-/reports/*.json
+/.github/.build/
+/.github/dist/
+/.github/reports/*.json
 
 # Python
 __pycache__/

@@ -9,10 +9,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-BOOK_ROOT = ROOT / "books"
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
+BOOK_ROOT = CONTENT_ROOT / "books"
 CATALOG = ROOT / "catalog.json"
-REPORT = ROOT / "reports" / "source-audit.json"
+REPORT = CONTENT_ROOT / "reports" / "source-audit.json"
 BOOK_GLOB = "* - 数理化自学丛书编委会.md"
 IMAGE_RE = re.compile(
     r"!\[(?P<alt>[^\]\n]*)\]\((?P<path>assets/[^)\s]+)(?:\s+[\"'][^\"']*[\"'])?\)"

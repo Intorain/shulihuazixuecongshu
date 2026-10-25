@@ -16,8 +16,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
-ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "privacy-audit.json"
+ROOT = Path(__file__).resolve().parents[2]
+CONTENT_ROOT = ROOT / ".github"
+REPORT = CONTENT_ROOT / "reports" / "privacy-audit.json"
 
 TEXT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
@@ -200,7 +201,7 @@ def scan_png(path: Path, findings: list[dict[str, object]], chunk_counts: Counte
 def scan_epubs(findings: list[dict[str, object]], identifiers: set[str]) -> tuple[int, int]:
     epub_count = 0
     entry_count = 0
-    for path in sorted((ROOT / "dist").glob("*.epub")):
+    for path in sorted((CONTENT_ROOT / "dist").glob("*.epub")):
         epub_count += 1
         try:
             with zipfile.ZipFile(path) as archive:
@@ -213,11 +214,11 @@ def scan_epubs(findings: list[dict[str, object]], identifiers: set[str]) -> tupl
                     try:
                         text = data.decode("utf-8")
                     except UnicodeDecodeError:
-                        record(findings, "non_utf8_epub_text_entry", f"dist/{path.name}!/{name}")
+                        record(findings, "non_utf8_epub_text_entry", f".github/dist/{path.name}!/{name}")
                         continue
-                    scan_text(text, f"dist/{path.name}!/{name}", findings, identifiers)
+                    scan_text(text, f".github/dist/{path.name}!/{name}", findings, identifiers)
         except (OSError, zipfile.BadZipFile) as exc:
-            record(findings, f"unreadable_epub_{type(exc).__name__}", f"dist/{path.name}")
+            record(findings, f"unreadable_epub_{type(exc).__name__}", f".github/dist/{path.name}")
     return epub_count, entry_count
 
 
@@ -239,7 +240,7 @@ def scan_commit_identities(findings: list[dict[str, object]]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--skip-generated", action="store_true", help="不扫描 dist/ 中的 EPUB")
+    parser.add_argument("--skip-generated", action="store_true", help="不扫描 .github/dist/ 中的 EPUB")
     args = parser.parse_args()
 
     findings: list[dict[str, object]] = []
